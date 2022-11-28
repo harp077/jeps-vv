@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>JEPS</title>
+        <meta charset="utf-8"/>
+        <link href="css/vuetify-v1.0.17.min.css" rel="stylesheet">   
+        <link href="css/material-design-icons.css" rel="stylesheet"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    </head>
+    <body>
+
+        <div id="app" style="background-color: mintcream">
+
+            <v-app light>
+
+                <jeps-header>Java Enterprise Password Storage &nbsp; </jeps-header>
+
+                <v-content>
+
+                    <v-container fluid grid-list-md text-xs-center>
+
+                        <v-layout row wrap>
+                            <v-flex xs12 sm12 md12 class="teal accent-2">
+                                <v-btn color="primary" v-on:click.native.stop="$store.dispatch('changePassgenDialogState',true)">
+                                    <v-icon>play_arrow</v-icon> &nbsp; Password Generator
+                                </v-btn>                                
+                                <v-btn v-if="ClientData.role[0].authority==='ROLE_admin'" color="primary" v-on:click.native.stop="$store.dispatch('changeClientInfoDialogState',true)">
+                                    <v-icon>info</v-icon> &nbsp; Client Info
+                                </v-btn>                                
+                                <v-menu offset-y> <!--v-if="ClientData.role[0].authority==='admin'">-->
+                                    <v-btn color="primary" slot="activator">
+                                        <v-icon>child_care</v-icon>
+                                        &nbsp; Admin &nbsp; |
+                                        <v-icon>keyboard_arrow_down</v-icon>|
+                                    </v-btn>
+                                    <v-list>
+                                        <v-list-tile>
+                                            <v-list-tile-action>
+                                                <v-btn icon v-on:click="adduserdlg=true">
+                                                    <v-icon>add_circle</v-icon>
+                                                </v-btn>
+                                            </v-list-tile-action>
+                                            <v-list-tile-title>Add User</v-list-tile-title>
+                                        </v-list-tile>
+                                        <v-list-tile>
+                                            <v-list-tile-action>
+                                                <v-btn icon>
+                                                    <v-icon>remove_circle</v-icon>
+                                                </v-btn>
+                                            </v-list-tile-action>
+                                            <v-list-tile-title>Delete User</v-list-tile-title>
+                                        </v-list-tile>                                        
+                                    </v-list>
+                                </v-menu>                                
+                                <v-btn title="logout" icon color="error" href="/logout">
+                                    <v-icon>exit_to_app</v-icon>
+                                </v-btn>                                
+                            </v-flex>
+                        </v-layout>
+
+                        <v-layout row wrap>
+                            <v-flex xs12 sm12 md12>
+                                <v-toolbar color="cyan darken-2" dark>
+                                    <v-toolbar-title>Password Storage</v-toolbar-title>
+                                </v-toolbar>
+                            </v-flex>
+                        </v-layout>
+
+                        <v-divider></v-divider>
+
+                        <v-layout row wrap>
+                            <v-flex xs12 sm10 md8>
+                                <v-layout row wrap>
+                                    <v-text-field color="pink"
+                                                  label="rs-login:"
+                                                  v-model="rslogin"
+                                                  ></v-text-field> 
+                                    <v-spacer></v-spacer>
+                                    <v-text-field color="pink"
+                                                  label="rs-passw:"
+                                                  v-model="rspassw"
+                                                  ></v-text-field>
+                                    <v-spacer></v-spacer>
+                                    <v-btn v-on:click="getRestAuth()">rest get</v-btn>
+                                </v-layout>
+                            </v-flex> 
+                        </v-layout>
+
+                    </v-container>
+
+                    <!--    @@@@@   dialogs  @@@@@@@@      -->
+
+                    <v-dialog hide-overlay v-model="adduserdlg" max-width="400">
+                        <v-toolbar color="light-blue">
+                            <v-toolbar-title class="black--text">Add User</v-toolbar-title>
+                            <v-spacer></v-spacer>
+                            <v-btn color="yellow" icon v-on:click.native="adduserdlg = false">
+                                <v-icon>cancel</v-icon>
+                            </v-btn>
+                        </v-toolbar>                        
+                        <v-card>
+                            <v-card-text>
+                                <v-form ref="adduserform" v-model="valid">
+                                    <v-text-field
+                                        label="Username:"
+                                        v-model="llogin"
+                                        required></v-text-field>
+                                    <v-text-field
+                                        type="password"
+                                        label="Password:"
+                                        v-model="ppassw1"
+                                        required></v-text-field>
+                                    <v-text-field 
+                                        readonly
+                                        label="Your password:"
+                                        v-model="ppassw1">
+                                    </v-text-field>
+                                    <v-switch color="green"
+                                              v-bind:label="`Admin Role: ${aadm.toString()}`"
+                                              v-model="aadm"></v-switch>
+                                    <v-btn color="orange" v-on:click="clearAddUserForm">clear</v-btn>
+                                    <v-btn color="green" v-on:click="submitAddUser">submit</v-btn>
+                                </v-form>
+                            </v-card-text>
+                        </v-card>
+                    </v-dialog>
+
+                    <jeps-clientinfo-dialog zaglavie="Client Information"></jeps-clientinfo-dialog>                    
+
+                    <jeps-passgen-dialog></jeps-passgen-dialog>                    
+
+                    <jeps-success-dialog>
+                        <p slot="top">State:</p>
+                        <template slot="telo">Success !</template>
+                    </jeps-success-dialog>
+
+                    <jeps-error-dialog topstr="State:" telo="Some error !"></jeps-error-dialog>
+
+                </v-content>
+
+                <jeps-rest-pwds ref="jepsrestpwds"></jeps-rest-pwds>
+
+                <jeps-footer mail="harp07@mail.ru" home="http://jeps.sf.net">
+                    {{ClientData.role[0].authority}},
+                    <!--[0].authority.toString()-->
+                    User = {{ClientData.login}}.
+                    Build: 11-05-18. Roman Koldaev, Saratov city, Russia. 
+                </jeps-footer>
+
+            </v-app>
+
+        </div>
+        <!-- BASE -->
+        <script src="js/vue.min.js"></script>
+        <script src="js/vuex.min.js"></script>
+        <script src="js/axios.min.js"></script>
+        <!-- UI -->
+        <!--<script src="js/babel-polyfill-6.26.0.min.js"></script>-->
+        <script src="js/vuetify-v1.0.17.min.js"></script>         
+        <!-- MY components -->
+        <script src="js/my/jeps-rest-pwds.js"></script>
+        <script src="js/my/jeps-header.js"></script>
+        <script src="js/my/jeps-footer.js"></script>
+        <script src="js/my/jeps-passgen-dialog.js"></script>
+        <script src="js/my/jeps-error-dialog.js"></script>
+        <script src="js/my/jeps-success-dialog.js"></script>
+        <script src="js/my/jeps-clientinfo-dialog.js"></script>        
+
+        <script>
+const store = new Vuex.Store({
+    state: {
+        ClientData: {},
+        ErrorDialogState: false,
+        SuccessDialogState: false,
+        PassgenDialogState: false,
+        ClientInfoDialogState: false
+    },
+    getters: {
+        ClientData: state => {
+            return state.ClientData;
+        },
+        ErrorDialogState: state => {
+            return state.ErrorDialogState;
+        },
+        SuccessDialogState: state => {
+            return state.SuccessDialogState;
+        },
+        PassgenDialogState: state => {
+            return state.PassgenDialogState;
+        },
+        ClientInfoDialogState: state => {
+            return state.ClientInfoDialogState;
+        }
+    },
+    actions: {
+        getClientData(context) {
+            axios.get('/rest/clientdesc')
+                    .then(otvet => {
+                        context.commit('setClientData', otvet.data);
+                        //this.ClientDesc = response.data;
+                    })
+                    .catch(error => {
+                        //this.restdata.errors = push(error);
+                    });
+        },
+        changeErrorDialogState(context, value) {
+            context.commit('setErrorDialogState', value);
+        },
+        changeSuccessDialogState(context, value) {
+            context.commit('setSuccessDialogState', value);
+        },
+        changePassgenDialogState(context, value) {
+            context.commit('setPassgenDialogState', value);
+        },
+        changeClientInfoDialogState(context, value) {
+            context.commit('setClientInfoDialogState', value);
+        }
+    },
+    mutations: {
+        setClientData(state, ClientData) {
+            state.ClientData = ClientData;
+        },
+        setErrorDialogState(state, value) {
+            state.ErrorDialogState = value;
+        },
+        setSuccessDialogState(state, value) {
+            state.SuccessDialogState = value;
+        },
+        setPassgenDialogState(state, value) {
+            state.PassgenDialogState = value;
+        },
+        setClientInfoDialogState(state, value) {
+            state.ClientInfoDialogState = value;
+        }
+    }
+});
+var app = new Vue({
+    el: '#app',
+    store,
+    ///////////////////
+    data: {
+        valid: true,
+        llogin: 'uuu',
+        ppassw1: '111',
+        //ppassw2: '222',
+        aadm: false,
+        adduserdlg: false,
+        RestAuth: {}
+    },
+    /////////////////////////
+    methods: {
+        submitAddUser: function () {
+            axios.post('/admin/adduser', {
+                login: this.llogin,
+                passw1: this.ppassw1,
+                //passw2: this.ppassw2,
+                adm: this.aadm
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }/*,
+                 auth: {
+                 //username: this.rslogin, 
+                 //password: this.rspassw 
+                 //username: this.$root.$refs.jepsrestpwds.apiuser,
+                 //password: this.$root.$refs.jepsrestpwds.apipass
+                 username: 'root', 
+                 password: 'root'                                       
+                 }*/
+            })
+                    .then(response => {
+                        console.log(response);
+                        this.$store.dispatch('changeSuccessDialogState', true);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        this.$store.dispatch('changeErrorDialogState', true);
+                    });
+            this.adduserdlg = false;
+        },
+        clearAddUserForm() {
+            this.llogin = '';
+            this.ppassw1 = '';
+            this.ppassw2 = '';
+            this.aadm = false;
+        },
+        /*clientInfoEventHandler: function (value) {
+         this.currentClient = value;
+         },*/
+        getRestAuth: function () {
+            axios.get('/rest/loginpassw')
+                    .then(response => {
+                        this.RestAuth = response.data;
+                    })
+                    .catch(error => {
+                        //this.restdata.errors = push(error);
+                    });
+        }
+    },
+    ////////////////////////
+    watch: {},
+    ////////////////////////
+    computed: {
+        ClientData() {
+            return this.$store.getters.ClientData;
+        },
+        textrest: function () {
+            return JSON.stringify(this.RestAuth);
+            //return this.restdata.gets;
+        },
+        rslogin: function () {
+            //return ''+Cookies.get('restauth');
+            return '' + this.RestAuth.login;
+        },
+        rspassw: function () {
+            //return ''+Cookies.get('restauth');
+            return '' + this.RestAuth.passw;
+        }
+    },
+    /////  LIFE-CICLE HOOK 
+    created: function () {
+        this.getRestAuth();
+        this.$store.dispatch('getClientData');
+    },
+    mounted: function () {
+        // JQUERY CODE !!!
+        /*this.$vuetify.theme = {
+         primary: "#26A69A", 
+         secondary: "#66BB6A", 
+         accent: "#AB47BC", 
+         error: "#f44336", 
+         warning: "#ffeb3b", 
+         info: "#2196f3", 
+         success: "#4caf50"
+         };*/
+    },
+    updated: function () { }
+});
+        </script>
+    </body>
+</html>

@@ -1,0 +1,44 @@
+{
+    "elements": {
+        "b-navbar-brand": {},
+        "b-tabs": {},
+        "n3-nav": {},
+        "n3-button": {},
+        "jeps-header": {},
+        "b-navbar-toggle": {},
+        "b-collapse": {},
+        "jeps-footer": {
+            "attributes": {
+                "mail": {},
+                "home": {}
+            }
+        },
+        "b-dropdown-item": {},
+        "b-navbar-nav": {},
+        "b-tab": {},
+        "modalabout": {},
+        "navbar": {},
+        "jeps-client-info": {},
+        "n3-dropdown": {},
+        "userdetails": {},
+        "b-navbar": {},
+        "b-nav-item-dropdown": {},
+        "n3-nav-item": {},
+        "n3-modal": {},
+        "n3-sub-nav": {},
+        "li": {}
+    },
+    "attributes": {
+        "v-on:keyup.enter": {
+            "context": "input"
+        },
+        "ref": {},
+        "v-if": {},
+        "zaglavie": {},
+        "v-on:click": {},
+        "v-on:click.prevent": {},
+        "v-for": {},
+        "slot": {},
+        "v-model": {}
+    }
+}
